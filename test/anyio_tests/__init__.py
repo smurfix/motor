@@ -65,6 +65,10 @@ class _TestMethodWrapper(object):
         return getattr(self.orig_method, name)
 
 
+async def with_session(proc):
+    async with Session():
+        await proc()
+
 class AnyIOTestCase(AssertLogsMixin, unittest.TestCase):
     longMessage = True  # Used by unittest.TestCase
     ssl = False  # If True, connect with SSL, skip if mongod isn't SSL
@@ -91,7 +95,7 @@ class AnyIOTestCase(AssertLogsMixin, unittest.TestCase):
         self.cx = self.anyio_client()
         self.db = self.cx.motor_test
         self.collection = self.db.test_collection
-        anyio.run(self.collection.drop, backend="trio")
+        anyio.run(with_session, self.collection.drop, backend="trio")
 
     def get_client_kwargs(self, **kwargs):
         if env.mongod_started_with_ssl:
@@ -197,7 +201,7 @@ def anyio_test(func=None, timeout=None, session=False):
                     else:
                         await f(self, *args, **kwargs)
 
-            anyio.run(runner, backend="trio")
+            anyio.run(with_session, runner, backend="trio")
 
         return wrapped
 

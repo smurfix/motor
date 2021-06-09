@@ -52,8 +52,10 @@ class TestAnyIOClient(AnyIOTestCase):
         cx = self.anyio_client()
         collection = cx.motor_test.test_client_lazy_connect
         async with anyio.create_task_group() as tg:
-            tg.start_soon(collection.insert_one, {'foo': 'bar'})
-            tg.start_soon(collection.insert_one, {'foo': 'bar'})
+            async def ins():
+                await collection.insert_one({'foo': 'bar'})
+            tg.start_soon(ins)
+            tg.start_soon(ins)
         resp = await collection.count_documents({'foo': 'bar'})
         self.assertEqual(2, resp)
         cx.close()
@@ -69,6 +71,8 @@ class TestAnyIOClient(AnyIOTestCase):
         if env.mongod_started_with_ssl:
             raise SkipTest("Server started with SSL")
 
+        if env.port is None:
+            raise SkipTest("Server started without Unix socket")
         mongodb_socket = '/tmp/mongodb-%d.sock' % env.port
 
         if not os.access(mongodb_socket, os.R_OK):
@@ -293,26 +297,25 @@ class TestAnyIOClientHandshake(AnyIOMockServerTestCase):
                 except pymongo.errors.ServerSelectionTimeoutError:
                     pass
 
-        async with anyio.create_task_group() as tg:
-            cs = await tg.start(pinger)
-            ismaster = await self.run_thread(server.receives, "ismaster")
-            meta = ismaster.doc['client']
-            self.assertEqual('PyMongo|Motor', meta['driver']['name'])
-            # AnyIOMotorClient adds nothing to platform.
-            self.assertNotIn('Tornado', meta['platform'])
-            self.assertTrue(
-                meta['driver']['version'].endswith(motor.version),
-                "Version in handshake [%s] doesn't end with Motor version [%s]" % (
-                    meta['driver']['version'], motor.version))
+        # Trigger connection.
+        future = client.db.command('ping')
+        ismaster = await self.run_thread(server.receives, "ismaster")
+        meta = ismaster.doc['client']
+        self.assertEqual('PyMongo|Motor', meta['driver']['name'])
+        # AsyncIOMotorClient adds nothing to platform.
+        self.assertNotIn('Tornado', meta['platform'])
+        self.assertTrue(
+            meta['driver']['version'].endswith(motor.version),
+            "Version in handshake [%s] doesn't end with Motor version [%s]" % (
+                meta['driver']['version'], motor.version))
 
-            ismaster.hangs_up()
-            # cs.cancel()
-            await anyio.sleep(0.01)
-            client.close()
-            await anyio.sleep(0.01)
-            server.stop()
-            pass # wait for ping
-            tg.cancel_scope.cancel()
+        ismaster.hangs_up()
+        server.stop()
+        client.close()
+        try:
+            await future
+        except pymongo.errors.ServerSelectionTimeoutError:
+            pass
 
 
 if __name__ == '__main__':

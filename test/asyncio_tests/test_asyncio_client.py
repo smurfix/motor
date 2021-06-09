@@ -68,6 +68,8 @@ class TestAsyncIOClient(AsyncIOTestCase):
         if env.mongod_started_with_ssl:
             raise SkipTest("Server started with SSL")
 
+        if env.port is None:
+            raise SkipTest("Server started without Unix socket")
         mongodb_socket = '/tmp/mongodb-%d.sock' % env.port
 
         if not os.access(mongodb_socket, os.R_OK):

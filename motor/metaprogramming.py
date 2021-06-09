@@ -71,11 +71,7 @@ def asynchronize(
 
         loop = self.get_io_loop()
 
-        @functools.wraps(sync_method)
-        def r_e(m,d,a,k):
-            return framework.run_on_executor(loop,m,d,*a,**k)
-        
-        return r_e(sync_method, self.delegate, unwrapped_args, unwrapped_kwargs)
+        return framework.run_on_executor(loop, sync_method, self.delegate, *unwrapped_args, **unwrapped_kwargs)
 
     if wrap_class is not None:
         method = framework.pymongo_class_wrapper(method, wrap_class)
