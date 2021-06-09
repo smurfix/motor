@@ -26,6 +26,8 @@ from concurrent.futures import ThreadPoolExecutor
 from tornado import concurrent, gen, ioloop, version as tornado_version
 from tornado.gen import chain_future, coroutine  # For framework interface.
 
+from .. import DummySession as Session
+
 
 try:
     import contextvars

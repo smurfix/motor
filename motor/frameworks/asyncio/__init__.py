@@ -28,6 +28,7 @@ import warnings
 from asyncio import coroutine  # For framework interface.
 from concurrent.futures import ThreadPoolExecutor
 
+from .. import DummySession as Session
 
 try:
     import contextvars

@@ -17,6 +17,7 @@
 import functools
 import sys
 import warnings
+from contextlib import asynccontextmanager
 
 import pymongo
 import pymongo.auth
@@ -472,11 +473,18 @@ class AgnosticClientSession(AgnosticBase):
         """The :class:`~MotorClient` this session was created from. """
         return self._client
 
-    async def __aenter__(self):
-        return self
+    @asynccontextmanager
+    async def _ctx(self):
+        async with self.client._framework.Session(self):
+            with self.delegate:
+                yield self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        self.delegate.__exit__(exc_type, exc_val, exc_tb)
+    async def __aenter__(self):
+        self.__ctx = ctx = self._ctx()
+        return await ctx.__aenter__()
+
+    def __aexit__(self, *tb):
+        return self.__ctx.__aexit__(*tb)
 
     def __enter__(self):
         raise AttributeError("Use Motor sessions like 'async with await"
