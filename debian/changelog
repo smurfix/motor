@@ -1,0 +1,5 @@
+motor (2.5.0~dev0-1) smurf; urgency=low
+
+  * source package automatically created by stdeb 0.10.0
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Wed, 09 Jun 2021 17:24:26 +0200

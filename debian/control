@@ -1,0 +1,33 @@
+Source: motor
+Maintainer: Matthias Urlichs <matthias@urlichs.de>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/mongodb/motor/
+
+Package: python3-motor
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: Non-blocking MongoDB driver for Tornado or asyncio
+ =====
+ Motor
+ =====
+ .
+ .. image:: https://raw.github.com/mongodb/motor/master/doc/_static/motor.png
+ .
+ :Info: Motor is a full-featured, non-blocking MongoDB_ driver for Python
+     Tornado_ and asyncio_ applications.
+ :Documentation: Available at `motor.readthedocs.io <https://motor.readthedocs.io/en/stable/>`_
+ :Author: A\. Jesse Jiryu Davis
+ .
+ About
+ =====
+ .
+ Motor presents a coroutine-based API for non-blocking access
+ to MongoDB. The source is `on GitHub <https://github.com/mongodb/motor>`_
+ and the docs are on ReadTheDocs_.
+ .
+     "We use Motor in high throughput environments, processing tens of thousands
+     of requests per second. It allows us to take full advantage of modern
+
