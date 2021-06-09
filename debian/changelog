@@ -1,4 +1,4 @@
-motor (2.5.0~dev0-1) smurf; urgency=low
+motor (2.4.0+anyio-1) unstable; urgency=low
 
   * source package automatically created by stdeb 0.10.0
 
