@@ -47,6 +47,13 @@ except ImportError:
     HAVE_ASYNCIO = False
     asyncio = None
 
+HAVE_ANYIO = True
+try:
+    import anyio
+except ImportError:
+    HAVE_ANYIO = False
+    anyio = None
+
 HAVE_AIOHTTP = True
 try:
     import aiohttp

@@ -25,7 +25,7 @@ Programming Language :: Python :: Implementation :: CPython
 Programming Language :: Python :: Implementation :: PyPy
 """
 
-description = 'Non-blocking MongoDB driver for Tornado or asyncio'
+description = 'Non-blocking MongoDB driver for Tornado or asyncio or anyio'
 
 with open("README.rst") as readme:
     long_description = readme.read()
@@ -90,12 +90,15 @@ class test(Command):
         loader = MotorTestLoader()
         loader.avoid('high_availability', reason='Runs separately')
 
-        if not (testenv.HAVE_ASYNCIO or testenv.HAVE_TORNADO):
-            raise ImportError("No tornado nor asyncio")
-        elif not testenv.HAVE_TORNADO:
-            loader.avoid('tornado_tests', reason='no tornado')
-        elif not testenv.HAVE_ASYNCIO:
-            loader.avoid('asyncio_tests', reason='no asyncio')
+        if not (testenv.HAVE_ASYNCIO or testenv.HAVE_TORNADO or testenv.HAVE_ANYIO):
+            raise ImportError("No tornado nor asyncio nor anyio")
+        else:
+            if not testenv.HAVE_TORNADO:
+                loader.avoid('tornado_tests', reason='no tornado')
+            if not testenv.HAVE_ASYNCIO:
+                loader.avoid('asyncio_tests', reason='no asyncio')
+            if not testenv.HAVE_ANYIO:
+                loader.avoid('anyio_tests', reason='no anyio')
 
         if not testenv.HAVE_AIOHTTP:
             loader.avoid('asyncio_tests.test_aiohttp_gridfs',
@@ -131,7 +134,8 @@ class test(Command):
 
 
 packages = ['motor', 'motor.frameworks', 'motor.frameworks.tornado',
-            'motor.frameworks.asyncio', 'motor.aiohttp']
+            'motor.frameworks.asyncio', 'motor.frameworks.anyio',
+            'motor.aiohttp']
 
 
 setup(name='motor',
@@ -149,7 +153,7 @@ setup(name='motor',
       classifiers=[c for c in classifiers.split('\n') if c],
       keywords=[
           "mongo", "mongodb", "pymongo", "gridfs", "bson", "motor", "tornado",
-          "asyncio",
+          "asyncio", "anyio",
       ],
       tests_require=tests_require,
       test_suite='test',
