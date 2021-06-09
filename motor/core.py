@@ -261,6 +261,18 @@ class AgnosticClient(AgnosticBaseProperties):
 
             return session_class(obj, self)
 
+    @asynccontextmanager
+    async def _ctx(self):
+        async with self.client._framework.Session(self):
+            yield self
+
+    async def __aenter__(self):
+        self.__ctx = ctx = self._ctx()
+        return await ctx.__aenter__()
+
+    def __aexit__(self, *tb):
+        return self.__ctx.__aexit__(*tb)
+
 
 class _MotorTransactionContext(object):
     """Internal transaction context manager for start_transaction."""
