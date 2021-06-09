@@ -1,3 +1,9 @@
+motor (2.4.0+anyio-2) unstable; urgency=medium
+
+  * Disable testing
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Wed, 09 Jun 2021 17:28:05 +0200
+
 motor (2.4.0+anyio-1) unstable; urgency=low
 
   * source package automatically created by stdeb 0.10.0
