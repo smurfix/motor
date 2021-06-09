@@ -19,6 +19,7 @@ import unittest
 from unittest import SkipTest
 
 from test.test_environment import env, db_user, CLIENT_PEM
+env.setup()
 
 try:
     # Enable the fault handler to dump the traceback of each running
