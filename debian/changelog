@@ -1,3 +1,9 @@
+motor (2.4.0+anyio-3) unstable; urgency=medium
+
+  * Merge main
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Wed, 09 Jun 2021 17:32:08 +0200
+
 motor (2.4.0+anyio-2) unstable; urgency=medium
 
   * Disable testing
