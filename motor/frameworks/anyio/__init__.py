@@ -46,7 +46,12 @@ async def Session(client=None):
         try:
             yield client
         finally:
+            evt = anyio.Event()
+            await wrq.send((evt.set,None))
             await wrq.aclose()
+            with anyio.move_on_after(1):
+                await evt.wait()
+
             call_later.reset(tcl)
             session_tg.reset(ttg)
             tg.cancel_scope.cancel()
