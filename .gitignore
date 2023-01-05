@@ -13,3 +13,4 @@ doc/_build/
 .idea/
 xunit-results
 /.pybuild/
+/pymongo/

@@ -24,7 +24,6 @@ import os
 import warnings
 import contextvars
 import outcome
-from anyio._core._compat import DeprecatedAwaitable
 from contextlib import asynccontextmanager
 from functools import wraps, partial
 from inspect import iscoroutine
@@ -46,7 +45,12 @@ async def Session(client=None):
         try:
             yield client
         finally:
+            evt = anyio.Event()
+            await wrq.send((evt.set,None))
             await wrq.aclose()
+            with anyio.move_on_after(1):
+                await evt.wait()
+
             call_later.reset(tcl)
             session_tg.reset(ttg)
             tg.cancel_scope.cancel()
@@ -133,7 +137,6 @@ class Future:
         self._res = value
         self.event.set()
         call_later.get().send_nowait((self._run_callbacks, None))
-        return DeprecatedAwaitable(self.set_result)
 
     def set_exception(self, exc):
         if self.event.is_set():
@@ -143,7 +146,6 @@ class Future:
         self._exc = exc
         self.event.set()
         call_later.get().send_nowait((self._run_callbacks, None))
-        return DeprecatedAwaitable(self.set_exception)
 
     def _run_callbacks(self, _=None):
         while self._callbacks:
